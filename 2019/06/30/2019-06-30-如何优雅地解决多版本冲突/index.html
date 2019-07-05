@@ -522,8 +522,7 @@
 
         
 <div class="busuanzi-count">
-  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
-
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
   
     <span class="site-uv">
       <i class="fa fa-user"></i> 访问人数
@@ -660,6 +659,7 @@
 
   <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
   <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+  <script src="/js/src/md5.min.js"></script>
    <script type="text/javascript">
         var gitalk = new Gitalk({
           clientID: 'f25a3afff3bcdfb99a02',
@@ -667,7 +667,7 @@
           repo: 'wilburBlog.github.io',
           owner: 'wilburBlog',
           admin: ['wilburBlog'],
-          id: location.pathname,
+          id: md5(location.pathname),
           distractionFreeMode: 'true'
         })
         gitalk.render('gitalk-container')           
