@@ -5,7 +5,7 @@
   
 
 
-<html class="theme-next gemini use-motion" lang="zh-Hans">
+<html class="theme-next pisces use-motion" lang="zh-Hans">
 <head><meta name="generator" content="Hexo 3.9.0">
   <meta charset="UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -94,7 +94,7 @@
   var NexT = window.NexT || {};
   var CONFIG = {
     root: '/',
-    scheme: 'Gemini',
+    scheme: 'Pisces',
     version: '5.1.4',
     sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
     fancybox: true,
@@ -275,16 +275,6 @@
 
           
             
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2019/06/30/2019-06-30-如何优雅地解决多版本冲突/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/06/30/2019-06-30-如何优雅地解决多版本冲突/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
           
 
           
@@ -310,26 +300,15 @@
 
       
         
-          
-            <h3 id="问题背景"><a href="#问题背景" class="headerlink" title="问题背景"></a>问题背景</h3><p>今天为大家分享一个最近遇到的问题，引入了新的excel开源库<em>easy-excel</em>后，线上已有的excel导出功能出现了bug。<br>最后定位到问题是由于<em>easy-excel</em>使用的poi版本为==3.17==，而已有代码使用的poi版本为==3.9==。虽然看起来只是小版本的升级，但是很多3.9中的API已经废弃了，这也直接导致了已有功能的导出异常（真的是无力吐槽这个向下兼容性）。</p>
+          <h3 id="问题背景"><a href="#问题背景" class="headerlink" title="问题背景"></a>问题背景</h3><p>今天为大家分享一个最近遇到的问题，引入了新的excel开源库<em>easy-excel</em>后，线上已有的excel导出功能出现了bug。<br>最后定位到问题是由于<em>easy-excel</em>使用的poi版本为==3.17==，而已有代码使用的poi版本为==3.9==。虽然看起来只是小版本的升级，但是很多3.9中的API已经废弃了，这也直接导致了已有功能的导出异常（真的是无力吐槽这个向下兼容性）。</p>
 <p>既然定位到了问题，我们就要快速解决问题并重新上线，由于业务都有一定的复杂度，重写已有导出功能或者新增功能都是比较耗时的。那从问题本身来看有没有什么通用的解决方案呢？</p>
-<h3 id="问题的本质"><a href="#问题的本质" class="headerlink" title="问题的本质"></a>问题的本质</h3><p>首先我们来看问题本身，为何会出现冲突？我们看下在poi中比较常用的几个类的import语句如下。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.apache.poi.ss.usermodel.Cell;</span><br><span class="line"><span class="keyword">import</span> org.apache.poi.ss.usermodel.Row;</span><br><span class="line"><span class="keyword">import</span> org.apache.poi.ss.usermodel.Sheet;</span><br></pre></td></tr></table></figure>
-
-<p>由于3.9与3.17版本中Cell，Row，Sheet的包名和类名都是相同的，编译时只能选择其中一个。这一点Apache的commons包就做的比较好，直接通过包名将高版本与低版本做了区分。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.apache.commons.lang.StringUtils;</span><br><span class="line"><span class="keyword">import</span> org.apache.commons.lang3.StringUtils;</span><br></pre></td></tr></table></figure>
-
-<p>这也为我们解决问题提供了一个思路，可以通过修改包名的方式来区分poi版本，达到引入不同版本的poi的目的。</p>
-<h3 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h3><p>1 手动修改包名，重新打包poi和easy-excel<br>通过上面的分析，我们可以将3.17版本的poi和easy-excel源码下载，修改包名后打包成新的jar，引入到项目中。<br>2 利用打包工具<br>Java程序猿比较常用的打包工具有maven、gradle，都提供了非常强大的功能和丰富的插件。对于依赖冲突的问题，也都提供了对应的解决方案。gradle中可以使用shadow插件，Maven可以使用Shade插件。<br>由于项目中使用gradle，这里主要介绍shadow的使用方案。<br>首先，我们创建一个新的module命名为common-excel，具体的gradle配置如下：</p>
-<figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">buildscript</span> &#123;</span><br><span class="line">    <span class="keyword">repositories</span> &#123;</span><br><span class="line">        mavenCentral()</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">dependencies</span>&#123;</span><br><span class="line">        <span class="keyword">classpath</span>(<span class="string">"com.github.jengelman.gradle.plugins:shadow:4.0.4"</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">apply plugin: <span class="string">'java'</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//使用shadow插件</span></span><br><span class="line">apply plugin: <span class="string">'com.github.johnrengelman.shadow'</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">repositories</span> &#123;</span><br><span class="line">    mavenCentral()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">dependencies</span> &#123;</span><br><span class="line">    <span class="keyword">compile</span> <span class="string">'com.alibaba:easyexcel:1.0.1'</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//shadow配置，relocate包名</span></span><br><span class="line">shadowJar &#123;</span><br><span class="line">    baseName = <span class="string">'demo'</span></span><br><span class="line">    version = <span class="keyword">null</span></span><br><span class="line">    zip64 <span class="keyword">true</span></span><br><span class="line">    relocate(<span class="string">'org.apache.poi'</span>, <span class="string">'demo.org.apache.poi'</span>)</span><br><span class="line">    mergeServiceFiles()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>配置很简单，我们通过relocate配置，将org.apache.poi映射成demo.org.apache.poi。Sahdow插件通过ASM类库来实现这个功能，将字节码中的org.apache.poi做了替换，并重新打包。这样不管是3.17版本中的poi，还是easy-excel中对poi的import都是使用新的包名。<br>最后，我们在项目中引入该模块，就实现了3.9与3.17版本poi的共存。</p>
-<figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">compile</span> <span class="keyword">project</span>(path: <span class="string">':common-excel'</span>,configuration:<span class="string">'shadow'</span>)</span><br></pre></td></tr></table></figure>
-
-<p>增加module的方式还是对源码有一定的侵入，我们也可以直接将打好的包放到内部的maven库中。</p>
-<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>其实上面提到是一种救火方案，我们应该在平常就确定一套通用的工具类库，如果觉得工具类库太low或者不能满足需求，应该提前评估工具替换可能带来的影响，并通知到组内同事。</p>
-
-          
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2019/06/30/2019-06-30-如何优雅地解决多版本冲突/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -469,7 +448,7 @@
 </div>
 
 
-  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Wilbur</a> 强力驱动</div>
 
 
 
@@ -477,12 +456,32 @@
 
 
 
-  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
 
 
 
 
         
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i> 访问人数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i> 访问总量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
 
 
 
@@ -596,13 +595,7 @@
   
 
 
-  
 
-    
-      <script id="dsq-count-scr" src="https://wilburjiang.disqus.com/count.js" async></script>
-    
-
-    
 
   
 
@@ -618,6 +611,10 @@
   
 
 
+
+
+
+  
 
 
 

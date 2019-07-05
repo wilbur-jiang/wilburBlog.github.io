@@ -5,7 +5,7 @@
   
 
 
-<html class="theme-next gemini use-motion" lang="zh-Hans">
+<html class="theme-next pisces use-motion" lang="zh-Hans">
 <head><meta name="generator" content="Hexo 3.9.0">
   <meta charset="UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -87,7 +87,7 @@
 <meta property="og:site_name" content="wilur的闲聊">
 <meta property="og:description" content="问题背景今天为大家分享一个最近遇到的问题，引入了新的excel开源库easy-excel后，线上已有的excel导出功能出现了bug。最后定位到问题是由于easy-excel使用的poi版本为==3.17==，而已有代码使用的poi版本为==3.9==。虽然看起来只是小版本的升级，但是很多3.9中的API已经废弃了，这也直接导致了已有功能的导出异常（真的是无力吐槽这个向下兼容性）。 既然定位到了问">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-06-30T23:39:51.298Z">
+<meta property="og:updated_time" content="2019-07-05T12:58:01.239Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="如何优雅地解决多版本冲突">
 <meta name="twitter:description" content="问题背景今天为大家分享一个最近遇到的问题，引入了新的excel开源库easy-excel后，线上已有的excel导出功能出现了bug。最后定位到问题是由于easy-excel使用的poi版本为==3.17==，而已有代码使用的poi版本为==3.9==。虽然看起来只是小版本的升级，但是很多3.9中的API已经废弃了，这也直接导致了已有功能的导出异常（真的是无力吐槽这个向下兼容性）。 既然定位到了问">
@@ -98,7 +98,7 @@
   var NexT = window.NexT || {};
   var CONFIG = {
     root: '/',
-    scheme: 'Gemini',
+    scheme: 'Pisces',
     version: '5.1.4',
     sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
     fancybox: true,
@@ -276,21 +276,16 @@
 
           
             
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2019/06/30/2019-06-30-如何优雅地解决多版本冲突/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/06/30/2019-06-30-如何优雅地解决多版本冲突/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
           
 
           
           
 
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i> 浏览
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>次
+            </span>
           
 
           
@@ -312,6 +307,7 @@
       
         <h3 id="问题背景"><a href="#问题背景" class="headerlink" title="问题背景"></a>问题背景</h3><p>今天为大家分享一个最近遇到的问题，引入了新的excel开源库<em>easy-excel</em>后，线上已有的excel导出功能出现了bug。<br>最后定位到问题是由于<em>easy-excel</em>使用的poi版本为==3.17==，而已有代码使用的poi版本为==3.9==。虽然看起来只是小版本的升级，但是很多3.9中的API已经废弃了，这也直接导致了已有功能的导出异常（真的是无力吐槽这个向下兼容性）。</p>
 <p>既然定位到了问题，我们就要快速解决问题并重新上线，由于业务都有一定的复杂度，重写已有导出功能或者新增功能都是比较耗时的。那从问题本身来看有没有什么通用的解决方案呢？</p>
+<a id="more"></a>
 <h3 id="问题的本质"><a href="#问题的本质" class="headerlink" title="问题的本质"></a>问题的本质</h3><p>首先我们来看问题本身，为何会出现冲突？我们看下在poi中比较常用的几个类的import语句如下。</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.apache.poi.ss.usermodel.Cell;</span><br><span class="line"><span class="keyword">import</span> org.apache.poi.ss.usermodel.Row;</span><br><span class="line"><span class="keyword">import</span> org.apache.poi.ss.usermodel.Sheet;</span><br></pre></td></tr></table></figure>
 
@@ -387,17 +383,8 @@
           
 
   
-    <div class="comments" id="comments">
-      <div id="disqus_thread">
-        <noscript>
-          Please enable JavaScript to view the
-          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
-        </noscript>
-      </div>
-    </div>
-
+    <div id="gitalk-container"></div>
   
-
 
 
         </div>
@@ -520,7 +507,7 @@
 </div>
 
 
-  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Wilbur</a> 强力驱动</div>
 
 
 
@@ -528,12 +515,32 @@
 
 
 
-  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
 
 
 
 
         
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i> 访问人数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i> 访问总量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
 
 
 
@@ -651,25 +658,22 @@
   
 
 
-  
+  <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+  <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+   <script type="text/javascript">
+        var gitalk = new Gitalk({
+          clientID: 'f25a3afff3bcdfb99a02',
+          clientSecret: '4c0c172dee6cd992768517299c979b7508d0fef8',
+          repo: 'wilburBlog.github.io',
+          owner: 'wilburBlog',
+          admin: ['wilburBlog'],
+          id: location.pathname,
+          distractionFreeMode: 'true'
+        })
+        gitalk.render('gitalk-container')           
+       </script>
 
-    
-      <script id="dsq-count-scr" src="https://wilburjiang.disqus.com/count.js" async></script>
-    
 
-    
-      <script type="text/javascript">
-        var disqus_config = function () {
-          this.page.url = 'http://yoursite.com/2019/06/30/2019-06-30-如何优雅地解决多版本冲突/';
-          this.page.identifier = '2019/06/30/2019-06-30-如何优雅地解决多版本冲突/';
-          this.page.title = '如何优雅地解决多版本冲突';
-        };
-        var d = document, s = d.createElement('script');
-        s.src = 'https://wilburjiang.disqus.com/embed.js';
-        s.setAttribute('data-timestamp', '' + +new Date());
-        (d.head || d.body).appendChild(s);
-      </script>
-    
 
   
 
@@ -685,6 +689,10 @@
   
 
 
+
+
+
+  
 
 
 
